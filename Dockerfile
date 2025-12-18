@@ -214,6 +214,7 @@ RUN mkdir -p \
 # Stage 3: Production Runtime
 # ============================================
 FROM node:20-slim AS runner
+ENV PM2_HOME=/home/plunk/.pm2
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 WORKDIR /app
@@ -228,8 +229,11 @@ RUN apt-get update && apt-get install -y \
 
 # Install PM2 globally for process management
 # Use cache mount and specific version to prevent hangs
-RUN --mount=type=cache,target=/root/.npm \
-    npm install -g pm2@5.4.2 --prefer-offline --no-audit
+# Create home directory for plunk (required for PM2)
+RUN mkdir -p /home/plunk/.pm2 && \
+    chown -R plunk:nodejs /home/plunk
+
+ENV HOME=/home/plunk
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
