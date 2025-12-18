@@ -219,7 +219,12 @@ ARG BUILDPLATFORM
 WORKDIR /app
 
 # Install OpenSSL for Prisma, curl for health checks, nginx, and gettext (for envsubst)
-RUN apk add --no-cache openssl curl nginx gettext
+RUN apt-get update && apt-get install -y \
+    openssl \
+    curl \
+    nginx \
+    gettext \
+ && rm -rf /var/lib/apt/lists/*
 
 # Install PM2 globally for process management
 # Use cache mount and specific version to prevent hangs
