@@ -229,11 +229,8 @@ RUN apt-get update && apt-get install -y \
 
 # Install PM2 globally for process management
 # Use cache mount and specific version to prevent hangs
-# Create home directory for plunk (required for PM2)
-RUN mkdir -p /home/plunk/.pm2 && \
-    chown -R plunk:nodejs /home/plunk
-
-ENV HOME=/home/plunk
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g pm2@5.4.2 --prefer-offline --no-audit
 
 # Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
@@ -242,6 +239,13 @@ RUN adduser --system --uid 1001 plunk
 # Create nginx directories and set permissions
 RUN mkdir -p /var/log/nginx /var/lib/nginx /run/nginx && \
     chown -R plunk:nodejs /var/log/nginx /var/lib/nginx /run/nginx /etc/nginx
+
+
+RUN mkdir -p /home/plunk/.pm2 && \
+    chown -R 1001:1001 /home/plunk
+
+ENV HOME=/home/plunk
+ENV PM2_HOME=/home/plunk/.pm2
 
 # ============================================
 # Copy API and SMTP services with minimal dependencies
