@@ -213,7 +213,7 @@ RUN mkdir -p \
 # ============================================
 # Stage 3: Production Runtime
 # ============================================
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 WORKDIR /app
