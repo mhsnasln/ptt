@@ -171,8 +171,6 @@ RUN --mount=type=cache,target=/app/.turbo,sharing=locked \
     NEXT_PUBLIC_LANDING_URI=${LANDING_URI} \
     NEXT_PUBLIC_WIKI_URI=${WIKI_URI} \
     yarn turbo build --filter=wiki
-# Generate sitemap for wiki
-RUN NEXT_PUBLIC_WIKI_URI=${WIKI_URI} yarn workspace wiki sitemap
 
 # Step 4: Copy and build Web dashboard
 COPY apps/web ./apps/web
@@ -186,8 +184,6 @@ RUN --mount=type=cache,target=/app/.turbo,sharing=locked \
     NEXT_PUBLIC_LANDING_URI=${LANDING_URI} \
     NEXT_PUBLIC_WIKI_URI=${WIKI_URI} \
     yarn turbo build --filter=web
-# Generate sitemap for web
-RUN NEXT_PUBLIC_DASHBOARD_URI=${DASHBOARD_URI} yarn workspace web sitemap
 
 # Step 5: Copy and build Landing page
 COPY apps/landing ./apps/landing
@@ -201,8 +197,6 @@ RUN --mount=type=cache,target=/app/.turbo,sharing=locked \
     NEXT_PUBLIC_LANDING_URI=${LANDING_URI} \
     NEXT_PUBLIC_WIKI_URI=${WIKI_URI} \
     yarn turbo build --filter=landing
-# Generate sitemap for landing
-RUN NEXT_PUBLIC_LANDING_URI=${LANDING_URI} yarn workspace landing sitemap
 
 # Copy any remaining root files (if needed)
 COPY . .
