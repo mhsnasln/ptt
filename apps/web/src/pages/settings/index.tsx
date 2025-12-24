@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {zodResolver} from '@hookform/resolvers/zod';
-import {ProjectSchemas} from '@plunk/shared';
+import {ProjectSchemas, SUPPORTED_LANGUAGES} from '@plunk/shared';
 import {TrackingMode} from '@plunk/db';
 import {
   Alert,
@@ -27,6 +27,7 @@ import {
   Input,
   Select,
   SelectContent,
+  SelectItem,
   SelectItemWithDescription,
   SelectTrigger,
   SelectValue,
@@ -105,6 +106,8 @@ export default function Settings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [isLoadingBilling, setIsLoadingBilling] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState<string>('auto');
+  const [showCurrencySelector, setShowCurrencySelector] = useState(false);
 
   // Fetch current user's membership for the active project
   const {data: membershipData} = useSWR<{
@@ -178,6 +181,7 @@ export default function Settings() {
     defaultValues: {
       name: activeProject?.name || '',
       tracking: activeProject?.tracking ?? TrackingMode.ENABLED,
+      language: activeProject?.language || 'en',
     },
   });
 
@@ -187,6 +191,7 @@ export default function Settings() {
       form.reset({
         name: activeProject.name,
         tracking: activeProject.tracking ?? TrackingMode.ENABLED,
+        language: activeProject.language || 'en',
       });
     }
   }, [activeProject, form]);
@@ -252,7 +257,7 @@ export default function Settings() {
     setShowRegenerateDialog(true);
   };
 
-  const handleStartSubscription = async () => {
+  const handleStartSubscription = async (currency: string = 'auto') => {
     if (!activeProject) return;
     if (!billingEnabled) {
       setErrorMessage('Billing is disabled on this instance.');
@@ -263,7 +268,13 @@ export default function Settings() {
       setIsLoadingBilling(true);
       setErrorMessage(null);
 
-      const response = await network.fetch<{url: string}>('POST', `/users/@me/projects/${activeProject.id}/checkout`);
+      // Build URL with optional currency parameter
+      const url =
+        currency === 'auto'
+          ? `/users/@me/projects/${activeProject.id}/checkout`
+          : `/users/@me/projects/${activeProject.id}/checkout?currency=${currency}`;
+
+      const response = await network.fetch<{url: string}>('POST', url);
 
       // Redirect to Stripe checkout
       if (response.url) {
@@ -454,6 +465,39 @@ export default function Settings() {
                           )}
                         />
                       )}
+
+                      {/* Language Selection */}
+                      <FormField
+                        control={form.control}
+                        name="language"
+                        render={({field}) => (
+                          <FormItem>
+                            <FormLabel>Customer Language</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value || 'en'}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select language" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {SUPPORTED_LANGUAGES.map((lang) => (
+                                  <SelectItem key={lang.code} value={lang.code}>
+                                    <div className="flex items-center gap-2">
+                                      <span>{lang.flag}</span>
+                                      <span>{lang.nativeName}</span>
+                                      <span className="text-neutral-500 text-xs">({lang.name})</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              Language for customer-facing pages (unsubscribe, preferences) and email footers.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
                       <div className="flex justify-end">
                         <Button type="submit" disabled={form.formState.isSubmitting}>
@@ -666,10 +710,49 @@ export default function Settings() {
                             </p>
                           </div>
 
-                          <div className="flex justify-start">
-                            <Button onClick={handleStartSubscription} disabled={isLoadingBilling}>
-                              {isLoadingBilling ? 'Loading...' : 'Start Subscription'}
-                            </Button>
+                          <div className="flex flex-col gap-2">
+                            <div className="flex justify-start">
+                              <Button onClick={() => handleStartSubscription(selectedCurrency)} disabled={isLoadingBilling}>
+                                {isLoadingBilling ? 'Loading...' : 'Start Subscription'}
+                              </Button>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setShowCurrencySelector(!showCurrencySelector)}
+                                className="text-xs text-neutral-500 hover:text-neutral-700 transition-colors w-fit"
+                              >
+                                {showCurrencySelector ? 'Hide currency options' : 'Select a different currency'}
+                              </button>
+
+                              <AnimatePresence>
+                                {showCurrencySelector && (
+                                  <motion.div
+                                    initial={{opacity: 0, height: 0}}
+                                    animate={{opacity: 1, height: 'auto'}}
+                                    exit={{opacity: 0, height: 0}}
+                                    transition={{duration: 0.2}}
+                                    className="overflow-hidden"
+                                  >
+                                    <div className="flex items-center gap-3 pt-1">
+                                      <label className="text-sm font-medium text-neutral-600">Currency:</label>
+                                      <Select value={selectedCurrency} onValueChange={setSelectedCurrency}>
+                                        <SelectTrigger className="w-[200px]">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="auto">Auto-detect</SelectItem>
+                                          <SelectItem value="usd">USD ($) - US Dollar</SelectItem>
+                                          <SelectItem value="eur">EUR (€) - Euro</SelectItem>
+                                          <SelectItem value="gbp">GBP (£) - British Pound</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
                           </div>
                         </div>
                       )}

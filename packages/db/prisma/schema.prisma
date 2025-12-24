@@ -17,9 +17,10 @@ model User {
   id String @id @default(uuid())
 
   // Credentials
-  email    String     @unique
-  password String?
-  type     AuthMethod
+  email         String     @unique
+  password      String?
+  type          AuthMethod
+  emailVerified Boolean    @default(false)
 
   // Relations
   memberships Membership[]
@@ -55,6 +56,9 @@ model Project {
 
   // Email Tracking
   tracking TrackingMode @default(ENABLED) // Open and click tracking mode
+
+  // Localization
+  language String @default("en") // Language code for customer-facing content (ISO 639-1)
 
   // Relations
   members     Membership[]

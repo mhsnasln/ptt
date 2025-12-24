@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import type {NextFunction, Request, Response} from 'express';
 import jsonwebtoken from 'jsonwebtoken';
 
-import {JWT_SECRET} from '../app/constants.js';
+import {JWT_SECRET, PLUNK_ENABLED} from '../app/constants.js';
 import {prisma} from '../database/prisma.js';
 import {ErrorCode, HttpException, NotAuthenticated} from '../exceptions/index.js';
 
@@ -398,6 +398,59 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
       userId,
       projectId,
     } as AuthResponse;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Middleware to require email verification
+ * Must be used AFTER isAuthenticated or requireProjectAccess
+ * @param req
+ * @param res
+ * @param next
+ */
+export const requireEmailVerified = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const auth = res.locals.auth as AuthResponse;
+
+    if (auth.type === 'apiKey') {
+      return next();
+    }
+
+    if (!auth.userId) {
+      throw new NotAuthenticated();
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {id: auth.userId},
+      select: {emailVerified: true, type: true},
+    });
+
+    if (!user) {
+      throw new NotAuthenticated();
+    }
+
+    // If platform email verification is disabled, skip check
+    if (!PLUNK_ENABLED) {
+      return next();
+    }
+
+    // OAuth users are always considered verified
+    if (user.type !== 'PASSWORD') {
+      return next();
+    }
+
+    // PASSWORD users must verify email
+    if (!user.emailVerified) {
+      throw new HttpException(
+        403,
+        'Please verify your email address to access this resource',
+        ErrorCode.EMAIL_VERIFICATION_REQUIRED,
+      );
+    }
 
     next();
   } catch (error) {

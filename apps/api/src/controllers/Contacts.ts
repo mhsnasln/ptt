@@ -4,7 +4,7 @@ import multer from 'multer';
 import signale from 'signale';
 
 import type {AuthResponse} from '../middleware/auth.js';
-import {requireAuth} from '../middleware/auth.js';
+import {requireAuth, requireEmailVerified} from '../middleware/auth.js';
 import {ContactService} from '../services/ContactService.js';
 import {QueueService} from '../services/QueueService.js';
 import {CatchAsync} from '../utils/asyncHandler.js';
@@ -32,7 +32,7 @@ export class Contacts {
    * List all contacts for the authenticated project with cursor-based pagination
    */
   @Get('')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async list(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -51,7 +51,7 @@ export class Contacts {
    * Returns field names with inferred types (string, number, boolean, date)
    */
   @Get('fields')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async getAvailableFields(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -77,7 +77,7 @@ export class Contacts {
    * Example: /contacts/fields/data.plan/values or /contacts/fields/subscribed/values
    */
   @Get('fields/:field/values')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async getFieldValues(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -110,7 +110,7 @@ export class Contacts {
    * Get a specific contact by ID
    */
   @Get(':id')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async get(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -130,7 +130,7 @@ export class Contacts {
    * Create or update a contact (upsert)
    */
   @Post('')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async create(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -160,7 +160,7 @@ export class Contacts {
    * Update a contact
    */
   @Patch(':id')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async update(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -181,7 +181,7 @@ export class Contacts {
    * Delete a contact
    */
   @Delete(':id')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async delete(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -211,10 +211,14 @@ export class Contacts {
 
     const contact = await ContactService.getById(contactId);
 
+    // Fetch project to get language preference
+    const project = await ContactService.getProjectByContactId(contactId);
+
     return res.status(200).json({
       id: contact.id,
       email: contact.email,
       subscribed: contact.subscribed,
+      language: project?.language || 'en',
     });
   }
 
@@ -301,7 +305,7 @@ export class Contacts {
    * Get import job status
    */
   @Get('import/:jobId')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async getImportStatus(req: Request, res: Response, _next: NextFunction) {
     const jobId = req.params.jobId;
@@ -332,7 +336,7 @@ export class Contacts {
    * Returns information about where the field is used and whether it can be safely deleted
    */
   @Get('fields/:field/usage')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async getFieldUsage(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -359,7 +363,7 @@ export class Contacts {
    * Only works if the field is not used in any segments or campaigns
    */
   @Delete('fields/:field')
-  @Middleware([requireAuth])
+  @Middleware([requireAuth, requireEmailVerified])
   @CatchAsync
   public async deleteField(req: Request, res: Response, _next: NextFunction) {
     const auth = res.locals.auth as AuthResponse;
@@ -376,6 +380,139 @@ export class Contacts {
       signale.error('[CONTACTS] Failed to delete field:', error);
       return res.status(error instanceof Error && error.message.includes('Cannot delete') ? 400 : 500).json({
         error: error instanceof Error ? error.message : 'Failed to delete field',
+      });
+    }
+  }
+
+  /**
+   * POST /contacts/bulk-subscribe
+   * Queue bulk subscribe operation
+   */
+  @Post('bulk-subscribe')
+  @Middleware([requireAuth, requireEmailVerified])
+  @CatchAsync
+  public async bulkSubscribe(req: Request, res: Response, _next: NextFunction) {
+    const auth = res.locals.auth as AuthResponse;
+    const {contactIds} = req.body;
+
+    if (!Array.isArray(contactIds) || contactIds.length === 0) {
+      return res.status(400).json({error: 'contactIds array is required'});
+    }
+
+    // Validate limit
+    if (contactIds.length > 1000) {
+      return res.status(400).json({error: 'Maximum 1000 contacts can be processed at once'});
+    }
+
+    try {
+      const job = await QueueService.queueBulkContactAction(auth.projectId!, contactIds, 'subscribe');
+
+      return res.status(202).json({
+        message: 'Bulk subscribe queued successfully',
+        jobId: job.id,
+      });
+    } catch (error) {
+      signale.error('[CONTACTS] Failed to queue bulk subscribe:', error);
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to queue bulk subscribe',
+      });
+    }
+  }
+
+  /**
+   * POST /contacts/bulk-unsubscribe
+   * Queue bulk unsubscribe operation
+   */
+  @Post('bulk-unsubscribe')
+  @Middleware([requireAuth, requireEmailVerified])
+  @CatchAsync
+  public async bulkUnsubscribe(req: Request, res: Response, _next: NextFunction) {
+    const auth = res.locals.auth as AuthResponse;
+    const {contactIds} = req.body;
+
+    if (!Array.isArray(contactIds) || contactIds.length === 0) {
+      return res.status(400).json({error: 'contactIds array is required'});
+    }
+
+    if (contactIds.length > 1000) {
+      return res.status(400).json({error: 'Maximum 1000 contacts can be processed at once'});
+    }
+
+    try {
+      const job = await QueueService.queueBulkContactAction(auth.projectId!, contactIds, 'unsubscribe');
+
+      return res.status(202).json({
+        message: 'Bulk unsubscribe queued successfully',
+        jobId: job.id,
+      });
+    } catch (error) {
+      signale.error('[CONTACTS] Failed to queue bulk unsubscribe:', error);
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to queue bulk unsubscribe',
+      });
+    }
+  }
+
+  /**
+   * POST /contacts/bulk-delete
+   * Queue bulk delete operation
+   */
+  @Post('bulk-delete')
+  @Middleware([requireAuth, requireEmailVerified])
+  @CatchAsync
+  public async bulkDelete(req: Request, res: Response, _next: NextFunction) {
+    const auth = res.locals.auth as AuthResponse;
+    const {contactIds} = req.body;
+
+    if (!Array.isArray(contactIds) || contactIds.length === 0) {
+      return res.status(400).json({error: 'contactIds array is required'});
+    }
+
+    if (contactIds.length > 1000) {
+      return res.status(400).json({error: 'Maximum 1000 contacts can be processed at once'});
+    }
+
+    try {
+      const job = await QueueService.queueBulkContactAction(auth.projectId!, contactIds, 'delete');
+
+      return res.status(202).json({
+        message: 'Bulk delete queued successfully',
+        jobId: job.id,
+      });
+    } catch (error) {
+      signale.error('[CONTACTS] Failed to queue bulk delete:', error);
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to queue bulk delete',
+      });
+    }
+  }
+
+  /**
+   * GET /contacts/bulk/:jobId
+   * Get bulk action job status
+   */
+  @Get('bulk/:jobId')
+  @Middleware([requireAuth, requireEmailVerified])
+  @CatchAsync
+  public async getBulkActionStatus(req: Request, res: Response, _next: NextFunction) {
+    const jobId = req.params.jobId;
+
+    if (!jobId) {
+      return res.status(400).json({error: 'Job ID is required'});
+    }
+
+    try {
+      const status = await QueueService.getBulkActionJobStatus(jobId);
+
+      if (!status) {
+        return res.status(404).json({error: 'Bulk action job not found'});
+      }
+
+      return res.status(200).json(status);
+    } catch (error) {
+      signale.error('[CONTACTS] Failed to get bulk action status:', error);
+      return res.status(500).json({
+        error: error instanceof Error ? error.message : 'Failed to get bulk action status',
       });
     }
   }
