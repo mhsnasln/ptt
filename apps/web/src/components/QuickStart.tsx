@@ -1,10 +1,10 @@
-import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from '@plunk/ui';
-import {BookOpen, CheckCircle2, Mail, MessageCircle, Shield, Users, Zap} from 'lucide-react';
+import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@plunk/ui';
+import { BookOpen, CheckCircle2, Mail, MessageCircle, Shield, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
-import {useMemo} from 'react';
-import {LANDING_URI, WIKI_URI} from '../lib/constants';
-import type {ProjectSetupState} from '../lib/hooks/useProjectSetupState';
-import {useConfig} from '../lib/hooks/useConfig';
+import { useMemo } from 'react';
+import { LANDING_URI, WIKI_URI } from '../lib/constants';
+import type { ProjectSetupState } from '../lib/hooks/useProjectSetupState';
+import { useConfig } from '../lib/hooks/useConfig';
 
 interface QuickStartStep {
   id: string;
@@ -44,7 +44,7 @@ function HelpResources() {
   );
 }
 
-export function QuickStart({setupState, isLoading}: QuickStartProps) {
+export function QuickStart({ setupState, isLoading }: QuickStartProps) {
   // Calculate days since last campaign using useMemo to avoid impure function during render
   // Must be called before any early returns to follow Rules of Hooks
   const daysSinceLastCampaign = useMemo(() => {
@@ -54,7 +54,7 @@ export function QuickStart({setupState, isLoading}: QuickStartProps) {
     return Math.floor((now.getTime() - lastSent.getTime()) / (1000 * 60 * 60 * 24));
   }, [setupState]);
 
-  const {data: config} = useConfig();
+  const { data: config } = useConfig();
   const billingEnabled = config?.features.billing.enabled ?? false;
 
   if (isLoading || !setupState) {
@@ -62,7 +62,7 @@ export function QuickStart({setupState, isLoading}: QuickStartProps) {
       <Card>
         <CardHeader>
           <CardTitle>Quick Start</CardTitle>
-          <CardDescription>Get started with Plunk in minutes</CardDescription>
+          <CardDescription>Get started with Ptt in minutes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -80,7 +80,7 @@ export function QuickStart({setupState, isLoading}: QuickStartProps) {
               </div>
             ))}
           </div>
-          <HelpResources />
+          {/* <HelpResources /> */}
         </CardContent>
       </Card>
     );
@@ -152,7 +152,7 @@ export function QuickStart({setupState, isLoading}: QuickStartProps) {
       id: 'subscription',
       icon: Shield,
       title: 'Upgrade Your Plan',
-      description: 'Remove Plunk branding and unlock more features',
+      description: 'Remove Ptt branding and unlock more features',
       link: '/settings?tab=billing',
       linkText: 'Upgrade',
       isCompleted: false,
@@ -207,7 +207,7 @@ export function QuickStart({setupState, isLoading}: QuickStartProps) {
       <CardHeader>
         <CardTitle>Quick Start</CardTitle>
         <CardDescription>
-          {visibleSteps.length === 0 ? 'Your project is set up' : 'Get started with Plunk in minutes'}
+          {visibleSteps.length === 0 ? 'Your project is set up' : 'Get started with Ptt in minutes'}
         </CardDescription>
       </CardHeader>
       <CardContent>

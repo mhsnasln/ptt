@@ -1,8 +1,8 @@
-import {useEffect, useState} from 'react';
-import {useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {ProjectSchemas, SUPPORTED_LANGUAGES} from '@plunk/shared';
-import {TrackingMode} from '@plunk/db';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { ProjectSchemas, SUPPORTED_LANGUAGES } from '@plunk/shared';
+import { TrackingMode } from '@plunk/db';
 import {
   Alert,
   Button,
@@ -36,8 +36,8 @@ import {
   TabsList,
   TabsTrigger,
 } from '@plunk/ui';
-import {AnimatePresence, motion} from 'framer-motion';
-import {NextSeo} from 'next-seo';
+import { AnimatePresence, motion } from 'framer-motion';
+import { NextSeo } from 'next-seo';
 import {
   AlertTriangle,
   CreditCard,
@@ -48,25 +48,25 @@ import {
   Shield,
   Users,
 } from 'lucide-react';
-import type {z} from 'zod';
-import {useRouter} from 'next/router';
-import {DashboardLayout} from '../../components/DashboardLayout';
-import {DomainsSettings} from '../../components/DomainsSettings';
-import {BillingLimits} from '../../components/BillingLimits';
-import {BillingConsumption} from '../../components/BillingConsumption';
-import {BillingInvoices} from '../../components/BillingInvoices';
-import {UnpaidInvoiceBanner} from '../../components/UnpaidInvoiceBanner';
-import {ApiKeyDisplay} from '../../components/ApiKeyDisplay';
-import {SmtpSettings} from '../../components/SmtpSettings';
-import {DataManagementSettings} from '../../components/DataManagementSettings';
-import {TeamSettings} from '../../components/TeamSettings';
-import {SecuritySettings} from '../../components/SecuritySettings';
-import {useActiveProject} from '../../lib/contexts/ActiveProjectProvider';
-import {network} from '../../lib/network';
-import {useProjects} from '../../lib/hooks/useProject';
-import {useConfig} from '../../lib/hooks/useConfig';
-import {useUser} from '../../lib/hooks/useUser';
-import {useProjectSecurity} from '../../lib/hooks/useProjectSecurity';
+import type { z } from 'zod';
+import { useRouter } from 'next/router';
+import { DashboardLayout } from '../../components/DashboardLayout';
+import { DomainsSettings } from '../../components/DomainsSettings';
+import { BillingLimits } from '../../components/BillingLimits';
+import { BillingConsumption } from '../../components/BillingConsumption';
+import { BillingInvoices } from '../../components/BillingInvoices';
+import { UnpaidInvoiceBanner } from '../../components/UnpaidInvoiceBanner';
+import { ApiKeyDisplay } from '../../components/ApiKeyDisplay';
+import { SmtpSettings } from '../../components/SmtpSettings';
+import { DataManagementSettings } from '../../components/DataManagementSettings';
+import { TeamSettings } from '../../components/TeamSettings';
+import { SecuritySettings } from '../../components/SecuritySettings';
+import { useActiveProject } from '../../lib/contexts/ActiveProjectProvider';
+import { network } from '../../lib/network';
+import { useProjects } from '../../lib/hooks/useProject';
+import { useConfig } from '../../lib/hooks/useConfig';
+import { useUser } from '../../lib/hooks/useUser';
+import { useProjectSecurity } from '../../lib/hooks/useProjectSecurity';
 import useSWR from 'swr';
 
 type TabId = 'general' | 'billing' | 'domains' | 'smtp' | 'data' | 'team' | 'security';
@@ -78,26 +78,26 @@ interface Tab {
   condition?: boolean;
 }
 
-const buildTabs = (options: {billingEnabled: boolean; smtpEnabled: boolean}): Tab[] => {
-  const {billingEnabled, smtpEnabled} = options;
+const buildTabs = (options: { billingEnabled: boolean; smtpEnabled: boolean }): Tab[] => {
+  const { billingEnabled, smtpEnabled } = options;
   const allTabs: Tab[] = [
-    {id: 'general', label: 'General', icon: SettingsIcon},
-    {id: 'team', label: 'Team', icon: Users},
-    {id: 'security', label: 'Security', icon: Shield},
-    {id: 'billing', label: 'Billing', icon: CreditCard, condition: billingEnabled},
-    {id: 'domains', label: 'Domains', icon: Globe},
-    {id: 'smtp', label: 'SMTP', icon: Mail, condition: smtpEnabled},
-    {id: 'data', label: 'Data', icon: Database},
+    { id: 'general', label: 'General', icon: SettingsIcon },
+    { id: 'team', label: 'Team', icon: Users },
+    { id: 'security', label: 'Security', icon: Shield },
+    { id: 'billing', label: 'Billing', icon: CreditCard, condition: billingEnabled },
+    { id: 'domains', label: 'Domains', icon: Globe },
+    { id: 'smtp', label: 'SMTP', icon: Mail, condition: smtpEnabled },
+    { id: 'data', label: 'Data', icon: Database },
   ];
   return allTabs.filter(tab => tab.condition !== false);
 };
 
 export default function Settings() {
   const router = useRouter();
-  const {activeProject, setActiveProject} = useActiveProject();
-  const {mutate: projectsMutate} = useProjects();
-  const {data: config} = useConfig();
-  const {data: user} = useUser();
+  const { activeProject, setActiveProject } = useActiveProject();
+  const { mutate: projectsMutate } = useProjects();
+  const { data: config } = useConfig();
+  const { data: user } = useUser();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showRegenerateDialog, setShowRegenerateDialog] = useState(false);
@@ -110,27 +110,27 @@ export default function Settings() {
   const [showCurrencySelector, setShowCurrencySelector] = useState(false);
 
   // Fetch current user's membership for the active project
-  const {data: membershipData} = useSWR<{
+  const { data: membershipData } = useSWR<{
     success: boolean;
-    data: Array<{userId: string; email: string; role: 'OWNER' | 'ADMIN' | 'MEMBER'}>;
-  }>(activeProject?.id ? `/projects/${activeProject.id}/members` : null, {revalidateOnFocus: false});
+    data: Array<{ userId: string; email: string; role: 'OWNER' | 'ADMIN' | 'MEMBER' }>;
+  }>(activeProject?.id ? `/projects/${activeProject.id}/members` : null, { revalidateOnFocus: false });
 
   const currentUserMembership = membershipData?.data.find(m => m.userId === user?.id);
   const currentUserRole = currentUserMembership?.role || 'MEMBER';
 
-  const {securityMetrics, isLoading: isLoadingSecurityMetrics} = useProjectSecurity(activeProject?.id);
+  const { securityMetrics, isLoading: isLoadingSecurityMetrics } = useProjectSecurity(activeProject?.id);
 
   const billingEnabled = config?.features.billing.enabled ?? false;
   const smtpEnabled = config?.features.smtp.enabled ?? false;
   const trackingToggleEnabled = config?.features.email.trackingToggleEnabled ?? false;
   const smtpConfig = smtpEnabled
     ? {
-        enabled: true as const,
-        domain: config?.features.smtp.domain ?? undefined,
-        portSecure: config?.features.smtp.ports?.secure,
-        portSubmission: config?.features.smtp.ports?.submission,
-      }
-    : {enabled: false as const};
+      enabled: true as const,
+      domain: config?.features.smtp.domain ?? undefined,
+      portSecure: config?.features.smtp.ports?.secure,
+      portSubmission: config?.features.smtp.ports?.submission,
+    }
+    : { enabled: false as const };
 
   // Get current tab from URL or default to 'general'
   const currentTab = (router.query.tab as TabId) || 'general';
@@ -138,13 +138,13 @@ export default function Settings() {
   // Set default tab in URL if none is present
   useEffect(() => {
     if (!router.query.tab && router.isReady) {
-      router.replace('/settings?tab=general', undefined, {shallow: true});
+      router.replace('/settings?tab=general', undefined, { shallow: true });
     }
   }, [router]);
 
   // Handler to change tabs and update URL
   const handleTabChange = (newTab: string) => {
-    router.push(`/settings?tab=${newTab}`, undefined, {shallow: true});
+    router.push(`/settings?tab=${newTab}`, undefined, { shallow: true });
   };
 
   // Handle Stripe redirect success/cancel messages
@@ -158,7 +158,7 @@ export default function Settings() {
         // Clear message and URL after 5 seconds
         setTimeout(() => {
           setSuccessMessage(null);
-          router.replace('/settings?tab=billing', undefined, {shallow: true});
+          router.replace('/settings?tab=billing', undefined, { shallow: true });
         }, 5000);
       }, 0);
       return () => clearTimeout(timer);
@@ -169,7 +169,7 @@ export default function Settings() {
         // Clear message and URL after 5 seconds
         setTimeout(() => {
           setErrorMessage(null);
-          router.replace('/settings?tab=billing', undefined, {shallow: true});
+          router.replace('/settings?tab=billing', undefined, { shallow: true });
         }, 5000);
       }, 0);
       return () => clearTimeout(timer);
@@ -274,7 +274,7 @@ export default function Settings() {
           ? `/users/@me/projects/${activeProject.id}/checkout`
           : `/users/@me/projects/${activeProject.id}/checkout?currency=${currency}`;
 
-      const response = await network.fetch<{url: string}>('POST', url);
+      const response = await network.fetch<{ url: string }>('POST', url);
 
       // Redirect to Stripe checkout
       if (response.url) {
@@ -297,7 +297,7 @@ export default function Settings() {
       setIsLoadingBilling(true);
       setErrorMessage(null);
 
-      const response = await network.fetch<{url: string}>(
+      const response = await network.fetch<{ url: string }>(
         'POST',
         `/users/@me/projects/${activeProject.id}/billing-portal`,
       );
@@ -390,7 +390,7 @@ export default function Settings() {
           {/* Tabs */}
           <Tabs value={currentTab} onValueChange={handleTabChange} className="max-w-4xl">
             <TabsList>
-              {buildTabs({billingEnabled, smtpEnabled}).map(tab => {
+              {buildTabs({ billingEnabled, smtpEnabled }).map(tab => {
                 const Icon = tab.icon;
                 return (
                   <TabsTrigger key={tab.id} value={tab.id} className="flex items-center gap-2" title={tab.label}>
@@ -414,7 +414,7 @@ export default function Settings() {
                       <FormField
                         control={form.control}
                         name="name"
-                        render={({field}) => (
+                        render={({ field }) => (
                           <FormItem>
                             <FormLabel>Project Name</FormLabel>
                             <FormControl>
@@ -430,7 +430,7 @@ export default function Settings() {
                         <FormField
                           control={form.control}
                           name="tracking"
-                          render={({field}) => (
+                          render={({ field }) => (
                             <FormItem>
                               <FormLabel>Email Tracking</FormLabel>
                               <Select onValueChange={field.onChange} defaultValue={field.value}>
@@ -470,7 +470,7 @@ export default function Settings() {
                       <FormField
                         control={form.control}
                         name="language"
-                        render={({field}) => (
+                        render={({ field }) => (
                           <FormItem>
                             <FormLabel>Customer Language</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value || 'en'}>
@@ -509,9 +509,9 @@ export default function Settings() {
                       <AnimatePresence mode="wait">
                         {successMessage && (
                           <motion.div
-                            initial={{opacity: 0, y: -10}}
-                            animate={{opacity: 1, y: 0}}
-                            exit={{opacity: 0}}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800"
                           >
                             {successMessage}
@@ -519,9 +519,9 @@ export default function Settings() {
                         )}
                         {errorMessage && (
                           <motion.div
-                            initial={{opacity: 0, y: -10}}
-                            animate={{opacity: 1, y: 0}}
-                            exit={{opacity: 0}}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800"
                           >
                             {errorMessage}
@@ -539,7 +539,7 @@ export default function Settings() {
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle>API Credentials</CardTitle>
-                      <CardDescription>Use these keys to integrate with the Plunk API</CardDescription>
+                      <CardDescription>Use these keys to integrate with the Ptt API</CardDescription>
                     </div>
                     <Button type="button" variant="outline" size="sm" onClick={promptRegenerateKeys}>
                       Regenerate Keys
@@ -656,9 +656,9 @@ export default function Settings() {
                       <AnimatePresence mode="wait">
                         {successMessage && (
                           <motion.div
-                            initial={{opacity: 0, y: -10}}
-                            animate={{opacity: 1, y: 0}}
-                            exit={{opacity: 0}}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             className="p-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800"
                           >
                             {successMessage}
@@ -666,9 +666,9 @@ export default function Settings() {
                         )}
                         {errorMessage && (
                           <motion.div
-                            initial={{opacity: 0, y: -10}}
-                            animate={{opacity: 1, y: 0}}
-                            exit={{opacity: 0}}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
                             className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-800"
                           >
                             {errorMessage}
@@ -705,7 +705,7 @@ export default function Settings() {
                               <span className="font-medium">No Active Subscription</span>
                             </div>
                             <p className="text-sm text-neutral-600">
-                              Start a subscription and support the development of Plunk. You will be charged a one-time
+                              Start a subscription and support the development of Ptt. You will be charged a one-time
                               onboarding fee which will be credited to your first invoice.
                             </p>
                           </div>
@@ -729,10 +729,10 @@ export default function Settings() {
                               <AnimatePresence>
                                 {showCurrencySelector && (
                                   <motion.div
-                                    initial={{opacity: 0, height: 0}}
-                                    animate={{opacity: 1, height: 'auto'}}
-                                    exit={{opacity: 0, height: 0}}
-                                    transition={{duration: 0.2}}
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.2 }}
                                     className="overflow-hidden"
                                   >
                                     <div className="flex items-center gap-3 pt-1">

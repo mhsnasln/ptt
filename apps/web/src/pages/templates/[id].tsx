@@ -15,27 +15,27 @@ import {
   SelectValue,
   StickySaveBar,
 } from '@plunk/ui';
-import type {Template} from '@plunk/db';
-import {DashboardLayout} from '../../components/DashboardLayout';
-import {EmailSettings} from '../../components/EmailSettings';
-import {EmailEditor} from '../../components/EmailEditor';
-import {network} from '../../lib/network';
-import {useChangeTracking} from '../../lib/hooks/useChangeTracking';
-import {ArrowLeft, Save, Trash2} from 'lucide-react';
+import type { Template } from '@plunk/db';
+import { DashboardLayout } from '../../components/DashboardLayout';
+import { EmailSettings } from '../../components/EmailSettings';
+import { EmailEditor } from '../../components/EmailEditor';
+import { network } from '../../lib/network';
+import { useChangeTracking } from '../../lib/hooks/useChangeTracking';
+import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import {useRouter} from 'next/router';
-import {useEffect, useState} from 'react';
-import {toast} from 'sonner';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import useSWR from 'swr';
-import {TemplateSchemas} from '@plunk/shared';
-import {useActiveProject} from '../../lib/contexts/ActiveProjectProvider';
+import { TemplateSchemas } from '@plunk/shared';
+import { useActiveProject } from '../../lib/contexts/ActiveProjectProvider';
 
 export default function TemplateEditorPage() {
   const router = useRouter();
-  const {id} = router.query;
-  const {activeProject} = useActiveProject();
+  const { id } = router.query;
+  const { activeProject } = useActiveProject();
 
-  const {data: template, mutate} = useSWR<Template>(id ? `/templates/${id}` : null, {
+  const { data: template, mutate } = useSWR<Template>(id ? `/templates/${id}` : null, {
     revalidateOnFocus: false,
   });
 
@@ -203,7 +203,7 @@ export default function TemplateEditorPage() {
                     id="name"
                     type="text"
                     value={editedTemplate.name || ''}
-                    onChange={e => setEditedTemplate({...editedTemplate, name: e.target.value})}
+                    onChange={e => setEditedTemplate({ ...editedTemplate, name: e.target.value })}
                     required
                     placeholder="Welcome Email"
                   />
@@ -215,7 +215,7 @@ export default function TemplateEditorPage() {
                     id="description"
                     type="text"
                     value={editedTemplate.description || ''}
-                    onChange={e => setEditedTemplate({...editedTemplate, description: e.target.value})}
+                    onChange={e => setEditedTemplate({ ...editedTemplate, description: e.target.value })}
                     placeholder="Sent to new subscribers"
                   />
                 </div>
@@ -225,7 +225,7 @@ export default function TemplateEditorPage() {
                   <Select
                     value={editedTemplate.type}
                     onValueChange={value =>
-                      setEditedTemplate({...editedTemplate, type: value as 'MARKETING' | 'TRANSACTIONAL'})
+                      setEditedTemplate({ ...editedTemplate, type: value as 'MARKETING' | 'TRANSACTIONAL' })
                     }
                   >
                     <SelectTrigger id="type">
@@ -245,7 +245,7 @@ export default function TemplateEditorPage() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-neutral-500 mt-1">
-                    Marketing templates will automatically include a Plunk-hosted unsubscribe link.
+                    Marketing templates will automatically include a Ptt unsubscribe link.
                   </p>
                 </div>
 
@@ -255,7 +255,7 @@ export default function TemplateEditorPage() {
                     id="subject"
                     type="text"
                     value={editedTemplate.subject || ''}
-                    onChange={e => setEditedTemplate({...editedTemplate, subject: e.target.value})}
+                    onChange={e => setEditedTemplate({ ...editedTemplate, subject: e.target.value })}
                     required
                     placeholder="Welcome to our platform!"
                   />
@@ -266,9 +266,9 @@ export default function TemplateEditorPage() {
                   from={editedTemplate.from || ''}
                   fromName={editedTemplate.fromName || ''}
                   replyTo={editedTemplate.replyTo || ''}
-                  onFromChange={value => setEditedTemplate({...editedTemplate, from: value})}
-                  onFromNameChange={value => setEditedTemplate({...editedTemplate, fromName: value})}
-                  onReplyToChange={value => setEditedTemplate({...editedTemplate, replyTo: value})}
+                  onFromChange={value => setEditedTemplate({ ...editedTemplate, from: value })}
+                  onFromNameChange={value => setEditedTemplate({ ...editedTemplate, fromName: value })}
+                  onReplyToChange={value => setEditedTemplate({ ...editedTemplate, replyTo: value })}
                   fromNamePlaceholder={activeProject?.name || 'Your Company'}
                   showFromNameHelpText
                   layout="vertical"
@@ -287,7 +287,7 @@ export default function TemplateEditorPage() {
               <CardContent>
                 <EmailEditor
                   value={editedTemplate.body || ''}
-                  onChange={body => setEditedTemplate({...editedTemplate, body})}
+                  onChange={body => setEditedTemplate({ ...editedTemplate, body })}
                 />
               </CardContent>
             </Card>

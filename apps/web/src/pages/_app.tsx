@@ -1,15 +1,15 @@
 import '../styles/globals.css';
-import type {AppProps} from 'next/app';
-import {useRouter} from 'next/router';
-import React, {useEffect} from 'react';
-import {Toaster} from 'sonner';
-import {SWRConfig} from 'swr';
-import {DefaultSeo} from 'next-seo';
-import {Loader} from '@plunk/ui';
-import {ActiveProjectProvider} from '../lib/contexts/ActiveProjectProvider';
-import {useProjects} from '../lib/hooks/useProject';
-import {useUser} from '../lib/hooks/useUser';
-import {network} from '../lib/network';
+import type { AppProps } from 'next/app';
+import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
+import { Toaster } from 'sonner';
+import { SWRConfig } from 'swr';
+import { DefaultSeo } from 'next-seo';
+import { Loader } from '@plunk/ui';
+import { ActiveProjectProvider } from '../lib/contexts/ActiveProjectProvider';
+import { useProjects } from '../lib/hooks/useProject';
+import { useUser } from '../lib/hooks/useUser';
+import { network } from '../lib/network';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import advancedFormat from 'dayjs/plugin/advancedFormat';
@@ -24,7 +24,7 @@ const PUBLIC_ROUTES = ['/auth/login', '/auth/signup', '/auth/reset-password', '/
 // Routes that don't require a project
 const NO_PROJECT_ROUTES = ['/projects/create'];
 
-function App({Component, pageProps}: AppProps) {
+function App({ Component, pageProps }: AppProps) {
   return (
     <>
       <Component {...pageProps} />
@@ -32,8 +32,8 @@ function App({Component, pageProps}: AppProps) {
   );
 }
 
-function AuthGuard({children}: {children: React.ReactNode}) {
-  const {data: user, isLoading} = useUser();
+function AuthGuard({ children }: { children: React.ReactNode }) {
+  const { data: user, isLoading } = useUser();
   const router = useRouter();
   const isPublicRoute = PUBLIC_ROUTES.some(
     route => router.pathname === route || router.pathname.startsWith(`${route}/`),
@@ -64,8 +64,8 @@ function AuthGuard({children}: {children: React.ReactNode}) {
   return <>{children}</>;
 }
 
-function ProjectGuard({children}: {children: React.ReactNode}) {
-  const {data: projects, isLoading} = useProjects();
+function ProjectGuard({ children }: { children: React.ReactNode }) {
+  const { data: projects, isLoading } = useProjects();
   const router = useRouter();
   const isNoProjectRoute = NO_PROJECT_ROUTES.includes(router.pathname);
 
@@ -101,7 +101,7 @@ export default function WithProviders(props: AppProps) {
         shouldRetryOnError: false,
       }}
     >
-      <DefaultSeo titleTemplate="%s | Plunk" defaultTitle="Plunk | Email Platform Dashboard" />
+      <DefaultSeo titleTemplate="%s | Ptt" defaultTitle="Ptt | Email Platform Dashboard" />
       <ActiveProjectProvider>
         <Root {...props} />
       </ActiveProjectProvider>

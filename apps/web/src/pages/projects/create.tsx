@@ -1,6 +1,6 @@
-import {zodResolver} from '@hookform/resolvers/zod';
-import type {Project} from '@plunk/db';
-import {ProjectSchemas} from '@plunk/shared';
+import { zodResolver } from '@hookform/resolvers/zod';
+import type { Project } from '@plunk/db';
+import { ProjectSchemas } from '@plunk/shared';
 import {
   Button,
   Card,
@@ -14,21 +14,21 @@ import {
   FormMessage,
   Input,
 } from '@plunk/ui';
-import {AnimatePresence, motion} from 'framer-motion';
-import {FolderPlus, UserPlus} from 'lucide-react';
-import {NextSeo} from 'next-seo';
-import {useRouter} from 'next/router';
-import React, {useState} from 'react';
-import {useForm} from 'react-hook-form';
-import type {z} from 'zod';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FolderPlus, UserPlus } from 'lucide-react';
+import { NextSeo } from 'next-seo';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import type { z } from 'zod';
 
-import {useActiveProject} from '../../lib/contexts/ActiveProjectProvider';
-import {useProjects} from '../../lib/hooks/useProject';
-import {network} from '../../lib/network';
+import { useActiveProject } from '../../lib/contexts/ActiveProjectProvider';
+import { useProjects } from '../../lib/hooks/useProject';
+import { network } from '../../lib/network';
 
 export default function CreateProject() {
-  const {mutate: projectsMutate} = useProjects();
-  const {setActiveProject} = useActiveProject();
+  const { mutate: projectsMutate } = useProjects();
+  const { setActiveProject } = useActiveProject();
   const router = useRouter();
 
   const form = useForm<z.infer<typeof ProjectSchemas.create>>({
@@ -69,7 +69,7 @@ export default function CreateProject() {
       >
         <div className={'flex flex-col gap-6 max-w-2xl w-full'}>
           <div className="text-center mb-2">
-            <h1 className="text-3xl font-bold mb-2">Welcome to Plunk</h1>
+            <h1 className="text-3xl font-bold mb-2">Welcome to Ptt</h1>
             <p className="text-neutral-600">Choose how you&#39;d like to get started</p>
           </div>
 
@@ -99,7 +99,7 @@ export default function CreateProject() {
                         <FormField
                           control={form.control}
                           name="name"
-                          render={({field}) => (
+                          render={({ field }) => (
                             <FormItem>
                               <FormLabel>Project Name</FormLabel>
                               <FormControl>
@@ -115,9 +115,9 @@ export default function CreateProject() {
                       <AnimatePresence>
                         {errorMessage && (
                           <motion.p
-                            initial={{opacity: 0, y: -10}}
-                            animate={{opacity: 1, y: 0}}
-                            exit={{opacity: 0, y: -10}}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
                             className="text-sm font-medium text-red-500"
                           >
                             {errorMessage}

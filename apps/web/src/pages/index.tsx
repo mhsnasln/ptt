@@ -9,29 +9,29 @@ import {
   CardHeader,
   CardTitle,
 } from '@plunk/ui';
-import {AlertCircle, Mail, Send, TrendingUp, Users} from 'lucide-react';
-import {NextSeo} from 'next-seo';
+import { AlertCircle, Mail, Send, TrendingUp, Users } from 'lucide-react';
+import { NextSeo } from 'next-seo';
 import Link from 'next/link';
-import {useState} from 'react';
-import {ApiKeyDisplay} from '../components/ApiKeyDisplay';
-import {DashboardLayout} from '../components/DashboardLayout';
-import {QuickStart} from '../components/QuickStart';
-import {SecurityWarningBanner} from '../components/SecurityWarningBanner';
-import {useActiveProject} from '../lib/contexts/ActiveProjectProvider';
-import {useDashboardStats} from '../lib/hooks/useDashboardStats';
-import {useProjectSetupState} from '../lib/hooks/useProjectSetupState';
-import {useProjectSecurity} from '../lib/hooks/useProjectSecurity';
-import {useConfig} from '../lib/hooks/useConfig';
-import {useUser} from '../lib/hooks/useUser';
-import {network} from '../lib/network';
+import { useState } from 'react';
+import { ApiKeyDisplay } from '../components/ApiKeyDisplay';
+import { DashboardLayout } from '../components/DashboardLayout';
+import { QuickStart } from '../components/QuickStart';
+import { SecurityWarningBanner } from '../components/SecurityWarningBanner';
+import { useActiveProject } from '../lib/contexts/ActiveProjectProvider';
+import { useDashboardStats } from '../lib/hooks/useDashboardStats';
+import { useProjectSetupState } from '../lib/hooks/useProjectSetupState';
+import { useProjectSecurity } from '../lib/hooks/useProjectSecurity';
+import { useConfig } from '../lib/hooks/useConfig';
+import { useUser } from '../lib/hooks/useUser';
+import { network } from '../lib/network';
 
 export default function Index() {
-  const {activeProject} = useActiveProject();
-  const {totalContacts, totalEmailsSent, totalCampaigns, openRate, isLoading} = useDashboardStats();
-  const {setupState, isLoading: isLoadingSetupState} = useProjectSetupState(activeProject?.id);
-  const {securityMetrics} = useProjectSecurity(activeProject?.id);
-  const {data: config} = useConfig();
-  const {data: user} = useUser();
+  const { activeProject } = useActiveProject();
+  const { totalContacts, totalEmailsSent, totalCampaigns, openRate, isLoading } = useDashboardStats();
+  const { setupState, isLoading: isLoadingSetupState } = useProjectSetupState(activeProject?.id);
+  const { securityMetrics } = useProjectSecurity(activeProject?.id);
+  const { data: config } = useConfig();
+  const { data: user } = useUser();
   const [isResending, setIsResending] = useState(false);
   const [resendMessage, setResendMessage] = useState<string>('');
 
@@ -62,7 +62,7 @@ export default function Index() {
     setIsResending(true);
     setResendMessage('');
     try {
-      const response = await network.fetch<{success: boolean}>('POST', '/auth/request-verification');
+      const response = await network.fetch<{ success: boolean }>('POST', '/auth/request-verification');
 
       if (response.success) {
         setResendMessage('Verification email sent! Please check your inbox.');
@@ -135,10 +135,10 @@ export default function Index() {
             config?.features.billing.enabled && (
               <Alert variant="warning">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Upgrade to remove Plunk branding</AlertTitle>
+                <AlertTitle>Upgrade to remove Ptt branding</AlertTitle>
                 <AlertDescription className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <span className="text-sm">
-                    Your emails currently include Plunk branding. Upgrade to a subscription to remove it.
+                    Your emails currently include Ptt branding. Upgrade to a subscription to remove it.
                   </span>
                   <Link href="/settings?tab=billing">
                     <Button size="sm" className="w-full sm:w-auto">
@@ -153,7 +153,7 @@ export default function Index() {
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">Dashboard</h1>
             <p className="text-neutral-500 mt-2 text-sm sm:text-base">
-              Welcome back to {activeProject?.name || 'Plunk'}. Here&apos;s what&apos;s happening with your emails.
+              Welcome back to {activeProject?.name || 'Ptt'}. Here&apos;s what&apos;s happening with your emails.
             </p>
           </div>
 
@@ -184,7 +184,7 @@ export default function Index() {
             <Card>
               <CardHeader>
                 <CardTitle>API Keys</CardTitle>
-                <CardDescription>Use these keys to integrate with Plunk</CardDescription>
+                <CardDescription>Use these keys to integrate with Ptt</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

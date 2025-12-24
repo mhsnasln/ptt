@@ -1,6 +1,6 @@
-import {useActiveProject} from '../lib/contexts/ActiveProjectProvider';
-import {useUser} from '../lib/hooks/useUser';
-import {network} from '../lib/network';
+import { useActiveProject } from '../lib/contexts/ActiveProjectProvider';
+import { useUser } from '../lib/hooks/useUser';
+import { network } from '../lib/network';
 import {
   Activity,
   BarChart3,
@@ -19,8 +19,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import {useRouter} from 'next/router';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import { useRouter } from 'next/router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -29,7 +29,7 @@ interface DashboardLayoutProps {
 interface NavItem {
   name: string;
   href: string;
-  icon: React.ComponentType<{className?: string}>;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface NavSection {
@@ -40,30 +40,30 @@ interface NavSection {
 const navigation: NavSection[] = [
   {
     items: [
-      {name: 'Dashboard', href: '/', icon: LayoutDashboard},
-      {name: 'Contacts', href: '/contacts', icon: Users},
-      {name: 'Segments', href: '/segments', icon: Layers},
-      {name: 'Activity', href: '/activity', icon: Activity},
-      {name: 'Analytics', href: '/analytics', icon: BarChart3},
+      { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { name: 'Contacts', href: '/contacts', icon: Users },
+      { name: 'Segments', href: '/segments', icon: Layers },
+      { name: 'Activity', href: '/activity', icon: Activity },
+      { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     ],
   },
   {
     title: 'Automations',
     items: [
-      {name: 'Templates', href: '/templates', icon: FileText},
-      {name: 'Workflows', href: '/workflows', icon: Workflow},
+      { name: 'Templates', href: '/templates', icon: FileText },
+      { name: 'Workflows', href: '/workflows', icon: Workflow },
     ],
   },
   {
     title: 'Campaigns',
-    items: [{name: 'Campaigns', href: '/campaigns', icon: Megaphone}],
+    items: [{ name: 'Campaigns', href: '/campaigns', icon: Megaphone }],
   },
 ];
 
-export function DashboardLayout({children}: DashboardLayoutProps) {
+export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
-  const {data: user, mutate: mutateUser} = useUser();
-  const {activeProject, availableProjects, setActiveProject} = useActiveProject();
+  const { data: user, mutate: mutateUser } = useUser();
+  const { activeProject, availableProjects, setActiveProject } = useActiveProject();
   const [showProjectMenu, setShowProjectMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -155,8 +155,8 @@ export function DashboardLayout({children}: DashboardLayoutProps) {
     <>
       {/* Logo */}
       <div className="h-16 flex items-center gap-2 px-6 border-b border-neutral-200">
-        <Image src="/assets/logo.png" alt="Plunk" width={28} height={28} className="rounded" />
-        <h1 className="text-xl font-bold text-neutral-900">Plunk</h1>
+        <Image src="/assets/logo.png" alt="Ptt" width={28} height={28} className="rounded" />
+        <h1 className="text-xl font-bold text-neutral-900">Ptt</h1>
       </div>
 
       {/* Project Switcher */}
@@ -230,9 +230,8 @@ export function DashboardLayout({children}: DashboardLayoutProps) {
                     key={item.name}
                     href={item.href}
                     onClick={() => setShowMobileMenu(false)}
-                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-700  ${
-                      isActive ? 'bg-neutral-100' : 'hover:bg-neutral-50 hover:text-neutral-900'
-                    }`}
+                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-700  ${isActive ? 'bg-neutral-100' : 'hover:bg-neutral-50 hover:text-neutral-900'
+                      }`}
                   >
                     <Icon className="h-5 w-5" />
                     {item.name}
@@ -249,9 +248,8 @@ export function DashboardLayout({children}: DashboardLayoutProps) {
         <Link
           href="/settings"
           onClick={() => setShowMobileMenu(false)}
-          className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-700  ${
-            router.pathname.startsWith('/settings') ? 'bg-neutral-100' : 'hover:bg-neutral-50 hover:text-neutral-900'
-          }`}
+          className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-neutral-700  ${router.pathname.startsWith('/settings') ? 'bg-neutral-100' : 'hover:bg-neutral-50 hover:text-neutral-900'
+            }`}
         >
           <Settings className="h-5 w-5" />
           Settings
@@ -300,9 +298,8 @@ export function DashboardLayout({children}: DashboardLayoutProps) {
 
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden ${
-          showMobileMenu ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:hidden ${showMobileMenu ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="flex flex-col h-full">{getSidebarContent(mobileProjectMenuRef, mobileUserMenuRef)}</div>
       </div>
@@ -319,8 +316,8 @@ export function DashboardLayout({children}: DashboardLayoutProps) {
             <Menu className="h-6 w-6 text-neutral-900" />
           </button>
           <div className="flex items-center gap-2 ml-4">
-            <Image src="/assets/logo.png" alt="Plunk" width={24} height={24} className="rounded" />
-            <h1 className="text-lg font-bold text-neutral-900">Plunk</h1>
+            <Image src="/assets/logo.png" alt="Ptt" width={24} height={24} className="rounded" />
+            <h1 className="text-lg font-bold text-neutral-900">Ptt</h1>
           </div>
         </div>
 
